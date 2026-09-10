@@ -1,0 +1,30 @@
+{
+  "name": "smartcare-baby-backend",
+  "version": "1.0.0",
+  "description": "Backend authentication and user management service for SmartCare Baby platform",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node tests/testAuth.js"
+  },
+  "keywords": [
+    "express",
+    "mongodb",
+    "jwt",
+    "auth",
+    "maternal-health",
+    "smartcare-baby"
+  ],
+  "author": "SmartCare Baby Team",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.2.1"
+  }
+}
