@@ -20,6 +20,7 @@ import GrowthTracker from './pages/GrowthTracker';
 import AddBaby from './pages/AddBaby';
 import BabyDetail from './pages/BabyDetail';
 import EditBaby from './pages/EditBaby';
+import PregnancyDashboard from './pages/PregnancyDashboard';
 import KickCounter from './pages/KickCounter';
 import ContractionTimer from './pages/ContractionTimer';
 import WeightLogger from './pages/WeightLogger';
@@ -36,6 +37,7 @@ import ManageRisks from './pages/ManageRisks';
 import ManageSpecialists from './pages/ManageSpecialists';
 import ManageEmergency from './pages/ManageEmergency';
 import ManageEducation from './pages/ManageEducation';
+import MChatResults from './pages/MChatResult';
 
 function App() {
   return (
@@ -55,11 +57,14 @@ function App() {
       <Route path="/milestones" element={<MilestoneChecklist />} />
       <Route path="/mchat" element={<AutismScreener />} />
       <Route path="/growth" element={<GrowthTracker />} />
+      
+
 
       {/* Baby/Pregnancy  */}
       <Route path="/add-baby" element={<AddBaby />} />
       <Route path="/baby/:id" element={<BabyDetail />} />
       <Route path="/edit-baby/:id" element={<EditBaby />} />
+      <Route path="/pregnancy" element={<PregnancyDashboard />} />
       <Route path="/kick-counter" element={<KickCounter />} />
       <Route path="/contraction-timer" element={<ContractionTimer />} />
       <Route path="/weight-logger" element={<WeightLogger />} />
@@ -76,6 +81,8 @@ function App() {
       <Route path="/admin/specialists" element={<ManageSpecialists />} />
       <Route path="/admin/emergency" element={<ManageEmergency />} />
       <Route path="/admin/education" element={<ManageEducation />} />
+      <Route path="/mchat-result" element={<MChatResults />} />
+
     </Routes>
   );
 }

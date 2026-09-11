@@ -79,6 +79,12 @@ export default function UserDashboard() {
               <p className="text-body-lg font-body-lg text-on-surface-variant mt-2">Here's {userData.babyName}'s latest update.</p>
             </div>
             <div className="hidden md:flex gap-2">
+              {/* PREGNANCY JOURNEY BUTTON (NEW) */}
+              <Link to="/pregnancy" className="bg-secondary-container text-on-secondary-container font-label-md text-label-md py-3 px-6 rounded-full hover:opacity-90 transition-opacity flex items-center gap-2 shadow-sm">
+                <span className="material-symbols-outlined text-[18px]">pregnant_woman</span>
+                Pregnancy Journey
+              </Link>
+              {/* LOG ACTIVITY BUTTON */}
               <Link to="/add-baby" className="bg-primary text-on-primary font-label-md text-label-md py-3 px-6 rounded-full hover:bg-surface-tint transition-colors flex items-center gap-2 shadow-sm">
                 <span className="material-symbols-outlined text-[18px]">add</span>
                 Log Activity
@@ -166,7 +172,7 @@ export default function UserDashboard() {
                     </div>
                   </div>
 
-                  {/* Vaccination Alert - NOW LINKS TO /vaccinations */}
+                  {/* Vaccination Alert - LINKS TO /vaccinations */}
                   <div className="mt-4 bg-surface-container-low border border-surface-dim rounded-xl p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-primary-fixed-dim/20 flex items-center justify-center shrink-0">
@@ -268,10 +274,17 @@ export default function UserDashboard() {
                     </div>
                   </div>
                 </div>
-                <button className="md:hidden w-full mt-6 bg-primary text-on-primary font-label-md text-label-md py-3 rounded-full hover:bg-surface-tint transition-colors flex items-center justify-center gap-2">
-                  <span className="material-symbols-outlined text-[18px]">add</span>
-                  Log New Activity
-                </button>
+                {/* Mobile: Pregnancy + Log Buttons */}
+                <div className="md:hidden flex flex-col gap-3 mt-6">
+                  <Link to="/pregnancy" className="w-full bg-secondary-container text-on-secondary-container font-label-md text-label-md py-3 rounded-full hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">pregnant_woman</span>
+                    Pregnancy Journey
+                  </Link>
+                  <Link to="/add-baby" className="w-full bg-primary text-on-primary font-label-md text-label-md py-3 rounded-full hover:bg-surface-tint transition-colors flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]">add</span>
+                    Log New Activity
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
