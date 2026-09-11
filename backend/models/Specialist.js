@@ -1,7 +1,8 @@
 /**
  * Specialist Model - SmartCare Baby
- * Stores medical doctor profiles, specialties, contact info, and hospital affiliations
+ * Stores doctor profiles with ratings and location for the recommendation page
  */
+
 const mongoose = require('mongoose');
 
 const specialistSchema = new mongoose.Schema({
@@ -16,6 +17,12 @@ const specialistSchema = new mongoose.Schema({
   country: { type: String, trim: true, default: 'Sri Lanka' },
   latitude: { type: Number },
   longitude: { type: Number },
+  // New fields for the recommendation UI
+  avatar_url: { type: String, default: '' },
+  rating: { type: Number, default: 4.5, min: 0, max: 5 },
+  reviews_count: { type: Number, default: 0 },
+  distance_km: { type: Number, default: 0 },
+  bio: { type: String, default: '' },
   is_active: { type: Boolean, default: true },
 }, { timestamps: true });
 

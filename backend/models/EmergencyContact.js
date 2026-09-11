@@ -1,50 +1,27 @@
 /**
  * EmergencyContact Model - SmartCare Baby
- * Stores emergency phone numbers and medical hotline information for the floating Emergency button
+ * Quick-action contacts for the Emergency Help page
  */
 
 const mongoose = require('mongoose');
 
 const emergencyContactSchema = new mongoose.Schema({
-  service_name: {
+  service_name: { type: String, required: true, trim: true },
+  phone_number: { type: String, required: true, trim: true },
+  description: { type: String, default: '' },
+  category: {
     type: String,
-    required: [true, 'Service name is required'],
-    trim: true,
+    enum: ['Primary', 'Hospital', 'Pediatrician', 'Poison_Control', 'Ambulance', 'Other'],
+    default: 'Other',
   },
-  phone_number: {
-    type: String,
-    required: [true, 'Phone number is required'],
-    trim: true,
-  },
-  description: {
-    type: String,
-    trim: true,
-    default: '',
-  },
-  country: {
-    type: String,
-    trim: true,
-    default: 'Sri Lanka',
-  },
-  city: {
-    type: String,
-    trim: true,
-    default: 'All',
-  },
-  is_24hr: {
-    type: Boolean,
-    default: true,
-  },
-  is_active: {
-    type: Boolean,
-    default: true,
-  },
-}, {
-  timestamps: true,
-});
+  icon: { type: String, default: 'emergency' },
+  color: { type: String, default: '#BA1A1A' },
+  country: { type: String, default: 'Sri Lanka' },
+  city: { type: String, default: 'All' },
+  is_24hr: { type: Boolean, default: true },
+  is_active: { type: Boolean, default: true },
+}, { timestamps: true });
 
 emergencyContactSchema.index({ is_active: 1, country: 1 });
 
-const EmergencyContact = mongoose.models.EmergencyContact || mongoose.model('EmergencyContact', emergencyContactSchema);
-
-module.exports = EmergencyContact;
+module.exports = mongoose.models.EmergencyContact || mongoose.model('EmergencyContact', emergencyContactSchema);
