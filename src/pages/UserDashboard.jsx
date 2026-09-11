@@ -79,10 +79,10 @@ export default function UserDashboard() {
               <p className="text-body-lg font-body-lg text-on-surface-variant mt-2">Here's {userData.babyName}'s latest update.</p>
             </div>
             <div className="hidden md:flex gap-2">
-              <button className="bg-primary text-on-primary font-label-md text-label-md py-3 px-6 rounded-full hover:bg-surface-tint transition-colors flex items-center gap-2 shadow-sm">
+              <Link to="/add-baby" className="bg-primary text-on-primary font-label-md text-label-md py-3 px-6 rounded-full hover:bg-surface-tint transition-colors flex items-center gap-2 shadow-sm">
                 <span className="material-symbols-outlined text-[18px]">add</span>
                 Log Activity
-              </button>
+              </Link>
             </div>
           </section>
 
@@ -96,7 +96,6 @@ export default function UserDashboard() {
               <div className="bg-surface-container-lowest rounded-[2rem] p-6 soft-shadow relative overflow-hidden flex flex-col md:flex-row items-center md:items-start gap-6">
                 <div className="absolute -right-10 -top-10 w-40 h-40 bg-surface-container-high rounded-full blur-2xl opacity-50 pointer-events-none"></div>
                 <div className="w-32 h-32 rounded-full overflow-hidden shrink-0 border-4 border-surface-container-low relative">
-                  {/* Replace URL with local baby image later */}
                   <img className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkb0o_4iwlcsrN2uMIMq80xKlE54Mqj10jR1O54DAeWC3CdlY8L6n0fmyEXKaFhY8DX2OsJXqFZm6vzryOx-O0WIqraeIieX5Rw3g2AOwPY5oHvAVH_X8eoI5GpSnfvHOEircYLrUHL_SFekH59R47RHsmolhZ-tk31C4urkquH4Z3Pm7erqLqpMb6HIhUPvV9F0emHyMDthF9QWavmWEXZUmhW3ibMFHrFdYoLQCXVhNTyHHZ4RB_" alt={`Baby ${userData.babyName}`} />
                 </div>
                 <div className="flex flex-col items-center md:items-start justify-center flex-1 h-full pt-2 md:pt-0">
@@ -109,25 +108,21 @@ export default function UserDashboard() {
                   </div>
                   <p className="text-body-md font-body-md text-on-surface-variant mb-4">{userData.babyAge} • Born {userData.birthDate}</p>
                   <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {/* Weight */}
                     <div className="bg-surface-container p-3 rounded-xl flex flex-col items-center text-center">
                       <span className="material-symbols-outlined text-primary mb-1 text-[20px]">monitor_weight</span>
                       <span className="text-label-md font-label-md text-on-surface-variant">Weight</span>
                       <span className="text-body-md font-body-md text-on-surface font-semibold">{userData.weight}</span>
                     </div>
-                    {/* Height */}
                     <div className="bg-surface-container p-3 rounded-xl flex flex-col items-center text-center">
                       <span className="material-symbols-outlined text-primary mb-1 text-[20px]">height</span>
                       <span className="text-label-md font-label-md text-on-surface-variant">Height</span>
                       <span className="text-body-md font-body-md text-on-surface font-semibold">{userData.height}</span>
                     </div>
-                    {/* Sleep */}
                     <div className="bg-surface-container p-3 rounded-xl flex flex-col items-center text-center">
                       <span className="material-symbols-outlined text-secondary mb-1 text-[20px]">bedtime</span>
                       <span className="text-label-md font-label-md text-on-surface-variant">Sleep Avg</span>
                       <span className="text-body-md font-body-md text-on-surface font-semibold">{userData.sleepAvg}</span>
                     </div>
-                    {/* Feeds */}
                     <div className="bg-surface-container p-3 rounded-xl flex flex-col items-center text-center">
                       <span className="material-symbols-outlined text-primary mb-1 text-[20px]">restaurant</span>
                       <span className="text-label-md font-label-md text-on-surface-variant">Feeds</span>
@@ -145,7 +140,6 @@ export default function UserDashboard() {
                 </h3>
                 <div className="flex flex-col gap-4">
                   
-                  {/* Development Progress - ANIMATED */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-body-md font-body-md text-on-surface-variant font-semibold">6 Month Milestones</span>
@@ -159,7 +153,6 @@ export default function UserDashboard() {
                     </div>
                   </div>
 
-                  {/* Growth Progress - ANIMATED */}
                   <div className="mt-4">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-body-md font-body-md text-on-surface-variant font-semibold">Growth Percentile</span>
@@ -173,7 +166,7 @@ export default function UserDashboard() {
                     </div>
                   </div>
 
-                  {/* Vaccination Alert */}
+                  {/* Vaccination Alert - NOW LINKS TO /vaccinations */}
                   <div className="mt-4 bg-surface-container-low border border-surface-dim rounded-xl p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-primary-fixed-dim/20 flex items-center justify-center shrink-0">
@@ -184,9 +177,9 @@ export default function UserDashboard() {
                         <p className="text-body-sm font-body-sm text-on-surface-variant">Dose due in 2 weeks (Oct 26)</p>
                       </div>
                     </div>
-                    <button className="bg-transparent border-2 border-primary text-primary px-4 py-2 rounded-full font-label-md text-label-md hover:bg-primary-fixed/30 transition-colors">
+                    <Link to="/vaccinations" className="bg-transparent border-2 border-primary text-primary px-4 py-2 rounded-full font-label-md text-label-md hover:bg-primary-fixed/30 transition-colors">
                       Details
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -195,7 +188,7 @@ export default function UserDashboard() {
             {/* Right Column: Quick Actions & Logs (4 cols) */}
             <div className="md:col-span-4 flex flex-col gap-6">
               
-              {/* Quick Actions - UPDATED WITH 6 BUTTONS */}
+              {/* Quick Actions */}
               <div className="bg-surface-container-lowest rounded-[2rem] p-6 soft-shadow">
                 <h3 className="text-headline-sm font-headline-sm text-on-surface mb-4">Quick Actions</h3>
                 <div className="grid grid-cols-2 gap-3">
@@ -206,7 +199,6 @@ export default function UserDashboard() {
                     <span className="text-label-md font-label-md text-on-surface">Check Symptoms</span>
                   </Link>
 
-                  {/* NEW: Milestone Check */}
                   <Link to="/milestones" className="bg-surface-container hover:bg-surface-container-high transition-colors p-4 rounded-[1.5rem] flex flex-col items-center justify-center text-center gap-2 group active:scale-[0.98]">
                     <div className="w-12 h-12 rounded-full bg-surface flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
                       <span className="material-symbols-outlined text-primary text-[28px]">flag</span>
@@ -214,7 +206,6 @@ export default function UserDashboard() {
                     <span className="text-label-md font-label-md text-on-surface">Milestone Check</span>
                   </Link>
 
-                  {/* NEW: Autism Screener */}
                   <Link to="/mchat" className="bg-surface-container hover:bg-surface-container-high transition-colors p-4 rounded-[1.5rem] flex flex-col items-center justify-center text-center gap-2 group active:scale-[0.98]">
                     <div className="w-12 h-12 rounded-full bg-surface flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
                       <span className="material-symbols-outlined text-primary text-[28px]">psychology_alt</span>
@@ -228,13 +219,15 @@ export default function UserDashboard() {
                     </div>
                     <span className="text-label-md font-label-md text-on-surface">Track Growth</span>
                   </Link>
+
                   <Link to="/specialists" className="bg-surface-container hover:bg-surface-container-high transition-colors p-4 rounded-[1.5rem] flex flex-col items-center justify-center text-center gap-2 group active:scale-[0.98]">
                     <div className="w-12 h-12 rounded-full bg-surface flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
                       <span className="material-symbols-outlined text-primary text-[28px]">medical_information</span>
                     </div>
                     <span className="text-label-md font-label-md text-on-surface">Find Specialist</span>
                   </Link>
-                  <Link to="/assistant" className="bg-surface-container hover:bg-surface-container-high transition-colors p-4 rounded-[1.5rem] flex flex-col items-center justify-center text-center gap-2 group active:scale-[0.98]">
+
+                  <Link to="/chatbot" className="bg-surface-container hover:bg-surface-container-high transition-colors p-4 rounded-[1.5rem] flex flex-col items-center justify-center text-center gap-2 group active:scale-[0.98]">
                     <div className="w-12 h-12 rounded-full bg-surface flex items-center justify-center group-hover:bg-primary-fixed transition-colors">
                       <span className="material-symbols-outlined text-primary text-[28px]">psychiatry</span>
                     </div>
@@ -250,7 +243,6 @@ export default function UserDashboard() {
                   <button className="text-primary text-label-md font-label-md hover:underline">View All</button>
                 </div>
                 <div className="flex flex-col gap-4">
-                  {/* Log 1 */}
                   <div className="flex items-start gap-3 relative before:absolute before:left-[19px] before:top-10 before:bottom-[-16px] before:w-[2px] before:bg-surface-container">
                     <div className="w-10 h-10 rounded-full bg-inverse-on-surface flex items-center justify-center shrink-0 z-10">
                       <span className="material-symbols-outlined text-primary text-[20px]">water_bottle</span>
@@ -263,7 +255,6 @@ export default function UserDashboard() {
                       <p className="text-body-sm font-body-sm text-on-surface-variant mt-1">6 oz consumed</p>
                     </div>
                   </div>
-                  {/* Log 2 */}
                   <div className="flex items-start gap-3 relative">
                     <div className="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center shrink-0 z-10">
                       <span className="material-symbols-outlined text-secondary text-[20px]">crib</span>
@@ -277,7 +268,6 @@ export default function UserDashboard() {
                     </div>
                   </div>
                 </div>
-                {/* Mobile Add Button Fallback */}
                 <button className="md:hidden w-full mt-6 bg-primary text-on-primary font-label-md text-label-md py-3 rounded-full hover:bg-surface-tint transition-colors flex items-center justify-center gap-2">
                   <span className="material-symbols-outlined text-[18px]">add</span>
                   Log New Activity
@@ -287,7 +277,6 @@ export default function UserDashboard() {
           </div>
         </main>
 
-        {/* Reusing your existing FloatingButtons component */}
         <FloatingButtons />
       </div>
     </>

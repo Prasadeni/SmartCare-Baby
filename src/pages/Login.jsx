@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import mother2Image from '../assets/mother2.jpg';
 
 // Import Shared Components
@@ -21,11 +21,28 @@ const styles = `
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();   // ← ADD THIS LINE
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login clicked");
-    // Add your login API logic here
+    
+    // Get the form values
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+    
+    console.log("Login attempt:", { email, password });
+    
+    // BACKEND READY: Replace this with a real API call later
+    // const response = await fetch('/api/login', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ email, password })
+    // });
+    // const data = await response.json();
+    // localStorage.setItem('token', data.token);
+    
+    // For now, just navigate to the dashboard
+    navigate('/dashboard');
   };
 
   return (
