@@ -22,6 +22,7 @@ app.get('/api/health', (req, res) => {
 // Routes
 app.use('/api/mchat', require('./routes/mchatRoutes'));
 app.use('/api/milestones', require('./routes/milestoneRoutes'));
+app.use('/api/pregnancy', require('./routes/pregnancyRoutes'));
 
 // Error handler (must be last)
 app.use(require('./middleware/errorMiddleware'));
