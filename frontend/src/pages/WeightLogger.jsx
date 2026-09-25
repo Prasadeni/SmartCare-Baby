@@ -1,6 +1,6 @@
 // src/pages/WeightLogger.jsx
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import DashboardNavbar from '../components/DashboardNavbar';
 import FloatingButtons from '../components/FloatingButtons';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -12,11 +12,11 @@ import { formatDate } from '../utils/formatters';
 // ── Helpers ──────────────────────────────────────────────
 function calcDerived(pregnancy) {
   if (!pregnancy?.expectedDueDate) return null;
-  const dueDate = new Date(pregnancy.expectedDueDate);
+  const due = new Date(pregnancy.expectedDueDate);
   const today = new Date();
-  dueDate.setHours(0, 0, 0, 0);
+  due.setHours(0, 0, 0, 0);
   today.setHours(0, 0, 0, 0);
-  const daysToGo = Math.max(0, Math.floor((dueDate - today) / 86400000));
+  const daysToGo = Math.max(0, Math.floor((due - today) / 86400000));
   const daysSinceLMP = 280 - daysToGo;
   const currentWeek = Math.max(1, Math.min(40, Math.floor(daysSinceLMP / 7)));
   const currentDay = daysSinceLMP % 7;
@@ -24,6 +24,18 @@ function calcDerived(pregnancy) {
   if (currentWeek >= 13) trimester = 2;
   if (currentWeek >= 28) trimester = 3;
   return { daysToGo, currentWeek, currentDay, trimester };
+}
+
+function calcGestationalWeek(dateStr, expectedDueDate) {
+  if (!dateStr || !expectedDueDate) return null;
+  const d = new Date(dateStr);
+  const due = new Date(expectedDueDate);
+  if (Number.isNaN(d.getTime()) || Number.isNaN(due.getTime())) return null;
+  d.setHours(0, 0, 0, 0);
+  due.setHours(0, 0, 0, 0);
+  const daysToGo = Math.round((due - d) / 86400000);
+  const daysSinceLMP = 280 - daysToGo;
+  return Math.max(0, Math.min(42, Math.floor(daysSinceLMP / 7)));
 }
 
 function sortLogs(logs) {
@@ -57,7 +69,6 @@ function fmtKg(v) {
 // ── Main Page ────────────────────────────────────────────
 export default function WeightLogger() {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -67,10 +78,10 @@ export default function WeightLogger() {
   const [unit, setUnit] = useState('kg');
   const [weightInput, setWeightInput] = useState('');
   const [entryDate, setEntryDate] = useState(new Date().toISOString().split('T')[0]);
-  const [entryWeek, setEntryWeek] = useState('');
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -121,20 +132,29 @@ export default function WeightLogger() {
     : totalGain > iom.total[1] * (derived?.currentWeek / 40) * 1.2 ? 'Above Range'
     : 'On Track';
 
+  const autoWeek = useMemo(
+    () =>
+      calcGestationalWeek(entryDate, pregnancy?.expectedDueDate)
+      ?? derived?.currentWeek
+      ?? null,
+    [entryDate, pregnancy, derived]
+  );
+
   useEffect(() => {
     if (currentWeight != null && !weightInput) {
-      setWeightInput(unit === 'kg' ? currentWeight.toFixed(1) : (currentWeight * 2.20462).toFixed(1));
+      setWeightInput(
+        unit === 'kg' ? currentWeight.toFixed(1) : (currentWeight * 2.20462).toFixed(1)
+      );
     }
-    if (derived?.currentWeek && !entryWeek) {
-      setEntryWeek(String(derived.currentWeek));
-    }
-  }, [currentWeight, derived, weightInput, entryWeek, unit]);
+  }, [currentWeight, weightInput, unit]);
 
   const handleUnitToggle = (u) => {
     if (u === unit) return;
     const n = parseFloat(weightInput);
     if (!isNaN(n) && n > 0) {
-      setWeightInput(u === 'kg' ? (n / 2.20462).toFixed(1) : (n * 2.20462).toFixed(1));
+      setWeightInput(
+        u === 'kg' ? (n / 2.20462).toFixed(1) : (n * 2.20462).toFixed(1)
+      );
     }
     setUnit(u);
   };
@@ -147,12 +167,19 @@ export default function WeightLogger() {
       const n = parseFloat(weightInput);
       if (isNaN(n) || n <= 0) throw new Error('Enter a valid weight');
       const weightKg = unit === 'kg' ? n : n / 2.20462;
+
+      const week =
+        calcGestationalWeek(entryDate, pregnancy?.expectedDueDate)
+        ?? derived?.currentWeek
+        ?? 0;
+
       await pregnancyApi.createWeightLog({
         logDate: entryDate,
         weightKg: Number(weightKg.toFixed(2)),
-        gestationalAgeWeeks: Number(entryWeek) || derived?.currentWeek || 0,
+        gestationalAgeWeeks: week,
         notes: notes.trim() || null,
       });
+
       setSaveSuccess(true);
       setNotes('');
       await load();
@@ -161,6 +188,19 @@ export default function WeightLogger() {
       setError(err.message || 'Could not save weight');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this weight entry? This cannot be undone.')) return;
+    setDeletingId(id);
+    try {
+      await pregnancyApi.deleteWeightLog(id);
+      setLogs((prev) => prev.filter((l) => (l._id || l.id) !== id));
+    } catch (err) {
+      alert(err.message || 'Could not delete entry');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -179,7 +219,6 @@ export default function WeightLogger() {
           ) : (
             <div className="flex flex-col gap-8">
 
-              {/* ── Self-reported disclaimer ─────────────────── */}
               <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-xl px-4 py-3 flex items-start gap-3">
                 <span className="material-symbols-outlined text-tertiary text-[20px] shrink-0 mt-0.5">
                   info
@@ -189,9 +228,9 @@ export default function WeightLogger() {
                     Self-reported readings
                   </p>
                   <p className="text-body-sm text-on-surface-variant leading-relaxed">
-                    These readings are entered manually and have not been verified by a clinician.
-                    Share them with your obstetrician at your next visit — they don't replace a
-                    clinical assessment.
+                    These readings are entered manually and have not been verified by a
+                    clinician. Share them with your obstetrician at your next visit — they
+                    don't replace a clinical assessment.
                   </p>
                 </div>
               </div>
@@ -206,6 +245,7 @@ export default function WeightLogger() {
                 bmi={bmi}
                 iomLabel={iom.label}
                 gainStatus={gainStatus}
+                entryCount={sorted.length}
               />
 
               <QuickEntry
@@ -215,8 +255,7 @@ export default function WeightLogger() {
                 setWeightInput={setWeightInput}
                 entryDate={entryDate}
                 setEntryDate={setEntryDate}
-                entryWeek={entryWeek}
-                setEntryWeek={setEntryWeek}
+                autoWeek={autoWeek}
                 notes={notes}
                 setNotes={setNotes}
                 saving={saving}
@@ -225,6 +264,7 @@ export default function WeightLogger() {
                 currentWeight={currentWeight}
                 weeklyChange={weeklyChange}
                 gainStatus={gainStatus}
+                entryCount={sorted.length}
               />
 
               <ProgressChart
@@ -237,6 +277,8 @@ export default function WeightLogger() {
               <HistoryTable
                 logs={sorted}
                 prePregnancy={prePregnancyWeight}
+                onDelete={handleDelete}
+                deletingId={deletingId}
               />
 
               <EducationCard trimester={derived?.trimester || 1} />
@@ -251,6 +293,7 @@ export default function WeightLogger() {
 }
 
 // ── Sub-components ───────────────────────────────────────
+
 function NoPregnancyState() {
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
@@ -278,7 +321,7 @@ function NoPregnancyState() {
   );
 }
 
-function ContextBanner({ user, pregnancy, derived, prePregnancy, current, totalGain, bmi, iomLabel, gainStatus }) {
+function ContextBanner({ user, pregnancy, derived, prePregnancy, current, totalGain, bmi, iomLabel, gainStatus, entryCount }) {
   const statusColor =
     gainStatus === 'On Track' ? 'bg-[#e6f4ea] text-[#137333] border-[#ceead6]'
     : gainStatus === 'Below Range' || gainStatus === 'Above Range' ? 'bg-[#fff4e5] text-[#b45309] border-[#fed7aa]'
@@ -298,17 +341,22 @@ function ContextBanner({ user, pregnancy, derived, prePregnancy, current, totalG
             </div>
           )}
           <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-headline-sm font-headline-sm text-on-surface truncate">
-                {user?.fullName || 'You'}
-              </h1>
-              <span className="bg-secondary-fixed text-on-secondary-fixed-variant px-2.5 py-0.5 rounded-full text-[10px] font-label-md uppercase tracking-wider">
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <span className="bg-primary-fixed-dim text-on-primary-fixed-variant px-2.5 py-0.5 rounded-full text-[10px] font-label-md uppercase tracking-wider">
                 {badges[derived?.trimester || 1]} Trimester
               </span>
               <span className="bg-surface-container-highest text-on-primary-container px-2.5 py-0.5 rounded-full text-[10px] font-label-md">
                 Week {derived?.currentWeek || 0} of 40
               </span>
+              {entryCount > 0 && (
+                <span className="bg-secondary-fixed text-secondary px-2.5 py-0.5 rounded-full text-[10px] font-label-md font-bold">
+                  {entryCount} {entryCount === 1 ? 'entry' : 'entries'}
+                </span>
+              )}
             </div>
+            <h1 className="text-headline-sm font-headline-sm text-on-surface truncate">
+              {user?.fullName || 'You'}
+            </h1>
             <p className="text-body-sm text-on-surface-variant mt-1">
               Due <strong className="text-on-surface">{pregnancy.expectedDueDate ? formatDate(pregnancy.expectedDueDate) : '—'}</strong>
             </p>
@@ -384,16 +432,14 @@ function SubTab({ to, emoji, label, active }) {
 
 function QuickEntry({
   unit, onUnitToggle, weightInput, setWeightInput,
-  entryDate, setEntryDate, entryWeek, setEntryWeek,
+  entryDate, setEntryDate, autoWeek,
   notes, setNotes, saving, saveSuccess, onSubmit,
-  currentWeight, weeklyChange, gainStatus,
+  currentWeight, weeklyChange, gainStatus, entryCount,
 }) {
   const displayValue = (() => {
     if (currentWeight == null) return '—';
     return unit === 'kg' ? currentWeight.toFixed(1) : (currentWeight * 2.20462).toFixed(1);
   })();
-
-  const weeks = Array.from({ length: 37 }, (_, i) => i + 4);
 
   return (
     <section className="bg-surface-container-lowest rounded-2xl p-5 md:p-8 soft-shadow border border-surface-variant">
@@ -404,14 +450,13 @@ function QuickEntry({
               Bio-Metric
             </span>
             <span className="bg-secondary-fixed text-on-secondary-fixed px-2.5 py-0.5 rounded-full text-[10px] font-label-md font-bold">
-              Quick Entry
+              {entryCount > 0 ? `Add entry · ${entryCount} logged` : 'First entry'}
             </span>
           </div>
           <h2 className="text-headline-md font-headline-md text-on-surface">
             Current Weight &amp; Quick Entry
           </h2>
         </div>
-        {/* Fake "Automatic sync active" badge removed */}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -497,16 +542,17 @@ function QuickEntry({
             </div>
 
             <div>
-              <label className="text-body-sm font-semibold text-on-surface block mb-2">Gestational week</label>
-              <select
-                value={entryWeek}
-                onChange={(e) => setEntryWeek(e.target.value)}
-                className="w-full px-4 py-3 rounded-full bg-surface-container-low text-on-surface text-body-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                {weeks.map((w) => (
-                  <option key={w} value={w}>Week {w}</option>
-                ))}
-              </select>
+              <label className="text-body-sm font-semibold text-on-surface block mb-2">
+                Gestational week
+              </label>
+              <div className="w-full px-4 py-3 rounded-full bg-surface-container-low text-on-surface text-body-sm flex items-center justify-between">
+                <span className="font-semibold">
+                  {autoWeek != null && autoWeek > 0 ? `Week ${autoWeek}` : '—'}
+                </span>
+                <span className="text-[10px] text-tertiary uppercase tracking-wider">
+                  auto
+                </span>
+              </div>
             </div>
           </div>
 
@@ -556,8 +602,8 @@ function ProgressChart({ logs, prePregnancy, currentWeek, iom }) {
     );
   }
 
-  const W = 700, H = 280;
-  const padL = 50, padR = 20, padT = 20, padB = 40;
+  const W = 760, H = 320;
+  const padL = 55, padR = 30, padT = 30, padB = 45;
   const plotW = W - padL - padR;
   const plotH = H - padT - padB;
 
@@ -590,7 +636,7 @@ function ProgressChart({ logs, prePregnancy, currentWeek, iom }) {
   const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x},${p.y}`).join(' ');
 
   const lastPoint = points[points.length - 1];
-  const tooltipX = Math.min(W - padR - 60, lastPoint.x - 42);
+  const tooltipX = Math.min(W - padR - 90, Math.max(padL, lastPoint.x - 42));
   const tooltipY = Math.max(padT + 8, lastPoint.y - 55);
 
   const yTicks = [0, 0.25, 0.5, 0.75, 1].map((t) => {
@@ -598,7 +644,7 @@ function ProgressChart({ logs, prePregnancy, currentWeek, iom }) {
     return { v, y: padT + t * plotH };
   });
 
-  const xTicks = [8, 16, 22, 26, 28, 40];
+  const xTicks = [8, 16, 22, 26, 28, 34, 40];
 
   return (
     <section className="bg-surface-container-lowest rounded-2xl p-6 soft-shadow border border-surface-variant">
@@ -662,7 +708,19 @@ function ProgressChart({ logs, prePregnancy, currentWeek, iom }) {
           )}
 
           {points.map((p, i) => (
-            <circle key={i} cx={p.x} cy={p.y} r="4.5" fill="#004768" stroke="#ffffff" strokeWidth="2" />
+            <g key={i}>
+              <circle cx={p.x} cy={p.y} r="4.5" fill="#004768" stroke="#ffffff" strokeWidth="2" />
+              <text
+                x={p.x}
+                y={p.y - 12}
+                textAnchor="middle"
+                fontSize="10"
+                fontWeight="600"
+                fill="#40484e"
+              >
+                {p.kg.toFixed(1)}
+              </text>
+            </g>
           ))}
 
           {lastPoint && (
@@ -700,7 +758,7 @@ function ProgressChart({ logs, prePregnancy, currentWeek, iom }) {
   );
 }
 
-function HistoryTable({ logs, prePregnancy }) {
+function HistoryTable({ logs, prePregnancy, onDelete, deletingId }) {
   if (!logs || logs.length === 0) {
     return (
       <section className="bg-surface-container-lowest rounded-2xl p-6 soft-shadow border border-surface-variant">
@@ -713,14 +771,30 @@ function HistoryTable({ logs, prePregnancy }) {
   }
 
   const reversed = [...logs].reverse();
+  const first = logs[0];
+  const last = logs[logs.length - 1];
 
   return (
     <section className="bg-surface-container-lowest rounded-2xl p-6 soft-shadow border border-surface-variant">
-      <div className="mb-5">
-        <span className="text-[10px] font-label-md uppercase tracking-wider text-secondary font-bold">
-          Records
-        </span>
-        <h3 className="text-headline-md font-headline-md text-on-surface">Weight History Log</h3>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-5">
+        <div>
+          <span className="text-[10px] font-label-md uppercase tracking-wider text-secondary font-bold">
+            Records
+          </span>
+          <h3 className="text-headline-md font-headline-md text-on-surface">
+            Weight History Log
+          </h3>
+        </div>
+        <div className="flex items-center gap-3 text-body-sm text-on-surface-variant">
+          <span className="inline-flex items-center gap-1">
+            <span className="material-symbols-outlined text-[16px] text-primary">trending_up</span>
+            <strong className="text-on-surface">{logs.length}</strong> {logs.length === 1 ? 'entry' : 'entries'}
+          </span>
+          <span className="text-outline-variant">•</span>
+          <span>
+            From <strong className="text-on-surface">Week {first.gestationalAgeWeeks}</strong> to <strong className="text-on-surface">Week {last.gestationalAgeWeeks}</strong>
+          </span>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -731,7 +805,9 @@ function HistoryTable({ logs, prePregnancy }) {
               <th className="py-3 px-4">Date recorded</th>
               <th className="py-3 px-4">Logged weight</th>
               <th className="py-3 px-4">Weekly change</th>
-              <th className="py-3 px-4 rounded-r-xl">Total gain</th>
+              <th className="py-3 px-4">Total gain</th>
+              <th className="py-3 px-4">Notes</th>
+              <th className="py-3 px-4 rounded-r-xl text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -740,8 +816,10 @@ function HistoryTable({ logs, prePregnancy }) {
               const prev = idx > 0 ? logs[idx - 1] : null;
               const change = prev ? l.weightKg - prev.weightKg : null;
               const total = prePregnancy != null ? l.weightKg - prePregnancy : null;
+              const id = l._id || l.id;
+
               return (
-                <tr key={l._id || l.id || i} className="hover:bg-surface-container-low/50 transition-colors">
+                <tr key={id || i} className="hover:bg-surface-container-low/50 transition-colors">
                   <td className="py-3 px-4 font-semibold text-on-surface">
                     Week {l.gestationalAgeWeeks || '—'}
                   </td>
@@ -756,6 +834,21 @@ function HistoryTable({ logs, prePregnancy }) {
                   </td>
                   <td className={`py-3 px-4 font-semibold ${total == null ? 'text-tertiary' : total >= 0 ? 'text-primary' : 'text-secondary'}`}>
                     {total == null ? '—' : `${total >= 0 ? '+' : ''}${total.toFixed(1)} kg`}
+                  </td>
+                  <td className="py-3 px-4 text-body-sm text-on-surface-variant max-w-[200px] truncate">
+                    {l.notes || '—'}
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <button
+                      onClick={() => onDelete(id)}
+                      disabled={deletingId === id}
+                      className="w-8 h-8 rounded-full hover:bg-error-container hover:text-error flex items-center justify-center text-on-surface-variant transition-colors disabled:opacity-50 inline-flex"
+                      title="Delete entry"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">
+                        {deletingId === id ? 'hourglass_top' : 'delete'}
+                      </span>
+                    </button>
                   </td>
                 </tr>
               );

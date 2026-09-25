@@ -33,4 +33,7 @@ export const pregnancyApi = {
     client
       .post('/pregnancy/weight-logs', payload)
       .then((r) => r.data.weightLog),
+
+    deleteWeightLog: (id) =>
+    client.delete(`/pregnancy/weight-logs/${id}`).then((r) => r.data),    
 };

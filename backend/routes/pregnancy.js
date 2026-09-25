@@ -234,4 +234,20 @@ router.post(
   })
 );
 
+router.delete(
+  '/weight-logs/:id',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const pregnancy = await getActivePregnancy(req.user._id);
+    if (!pregnancy) return res.status(404).json({ message: 'No active pregnancy' });
+
+    const sub = pregnancy.weightLogs.id(req.params.id);
+    if (!sub) return res.status(404).json({ message: 'Weight log not found' });
+
+    sub.deleteOne();
+    await pregnancy.save();
+    res.json({ success: true });
+  })
+);
+
 export default router;
