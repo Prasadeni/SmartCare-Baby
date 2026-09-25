@@ -43,4 +43,3 @@ Thumbs.db
 .git.backup/
 
 # Embedded repo (RAG chatbot runs separately)
-rag-service/

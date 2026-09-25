@@ -1,0 +1,31 @@
+Title: Understanding M-CHAT Autism Screening
+Topic: mchat, autism, screening
+
+M-CHAT-style questionnaires are screening tools, commonly used around 16-30
+months, designed to help identify toddlers who might benefit from a more
+thorough developmental evaluation. They are not diagnostic tests — a screening
+result on its own cannot confirm or rule out autism.
+
+How results are generally interpreted:
+- A low-risk score suggests the child is showing expected social and
+  communication behaviors for their age based on the questions asked, though
+  ongoing routine developmental monitoring by a pediatrician still matters.
+- A medium-risk score generally means some follow-up questions or a repeat
+  screening after a short interval is recommended, since some initial
+  "risk" answers turn out not to reflect a real concern.
+- A high-risk score generally means a referral for a full developmental
+  evaluation is recommended, ideally without a long delay, so that any
+  support needed can start as early as possible if warranted.
+
+Important context for parents:
+- A single flagged item does not mean a diagnosis is likely — many
+  neurotypical toddlers show one or two atypical answers on any given day.
+- Early evaluation is generally recommended when risk is elevated because
+  early support tends to help regardless of the eventual diagnosis, not
+  because a positive screen means autism is confirmed.
+- Screening results can be affected by a child's mood, tiredness, or
+  unfamiliarity with the questions on a given day; a pattern over time is more
+  informative than a single screening.
+
+This is general educational information. A pediatrician or developmental
+specialist should always interpret an individual child's specific results.

@@ -1,0 +1,34 @@
+Title: Understanding the Infant Vaccination Schedule
+Topic: vaccination, immunization
+
+Infant vaccination schedules are designed to protect babies during the age
+windows when they're most vulnerable to specific diseases, often requiring
+multiple doses spaced weeks apart to build full protection.
+
+Common vaccines in a typical early schedule and what they protect against:
+- BCG: protects against severe forms of tuberculosis, often given at birth in
+  countries where TB is more common
+- Hepatitis B: protects against a virus that can cause serious liver disease;
+  often started at birth
+- Pentavalent (DTP-HepB-Hib) combination: protects against diphtheria,
+  tetanus, pertussis (whooping cough), hepatitis B, and Haemophilus
+  influenzae type b
+- Polio (OPV/IPV): protects against poliovirus, given in multiple doses
+- Rotavirus: protects against a common cause of severe infant diarrhea and
+  vomiting
+- MMR: protects against measles, mumps, and rubella, typically given from
+  around 9-12 months onward, sometimes with a booster dose later
+
+Why doses are spaced out:
+Multiple doses of the same vaccine, given weeks apart, are usually needed to
+build strong, lasting immunity — a single dose alone often isn't enough. Mild
+side effects like a low fever, fussiness, or soreness at the injection site
+for a day or two are common and generally not a cause for concern.
+
+Missing or delaying a dose isn't usually a crisis — most schedules can be
+resumed and caught up on ("catch-up" schedules), and a pediatrician can advise
+on timing if a dose was missed.
+
+This is general information; the exact schedule and vaccine names vary by
+country, and a pediatrician or local health authority should be the source for
+an individual child's up-to-date schedule.
