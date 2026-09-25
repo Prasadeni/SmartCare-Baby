@@ -1,0 +1,18 @@
+export const milestones = [
+  { area: 'Gross Motor', description: 'Sits without support', expectedAgeMonths: 8, isCritical: false },
+  { area: 'Gross Motor', description: 'Pulls to stand', expectedAgeMonths: 10, isCritical: false },
+  { area: 'Gross Motor', description: 'Crawls on hands and knees', expectedAgeMonths: 9, isCritical: false },
+  { area: 'Fine Motor', description: 'Grasps small objects with thumb and finger', expectedAgeMonths: 9, isCritical: false },
+  { area: 'Fine Motor', description: 'Transfers objects between hands', expectedAgeMonths: 7, isCritical: false },
+  { area: 'Language', description: 'Babbles with varied intonation', expectedAgeMonths: 6, isCritical: false },
+  { area: 'Language', description: 'Responds to own name', expectedAgeMonths: 9, isCritical: false },
+  { area: 'Language', description: 'Says "mama" or "dada"', expectedAgeMonths: 12, isCritical: false },
+  { area: 'Cognitive', description: 'Looks for hidden objects', expectedAgeMonths: 9, isCritical: false },
+  { area: 'Cognitive', description: 'Explores objects by shaking, banging', expectedAgeMonths: 8, isCritical: false },
+  { area: 'Social', description: 'Smiles back at familiar faces', expectedAgeMonths: 3, isCritical: false },
+  { area: 'Social', description: 'Shows stranger anxiety', expectedAgeMonths: 9, isCritical: false },
+  { area: 'Self-Help', description: 'Feeds self with fingers', expectedAgeMonths: 9, isCritical: false },
+  { area: 'Self-Help', description: 'Holds own bottle', expectedAgeMonths: 8, isCritical: false },
+  { area: 'Hearing/Vision', description: 'Turns to look at sounds', expectedAgeMonths: 4, isCritical: true },
+  { area: 'Hearing/Vision', description: 'Follows moving objects with eyes', expectedAgeMonths: 3, isCritical: true },
+];
