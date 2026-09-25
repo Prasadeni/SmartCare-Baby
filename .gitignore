@@ -35,3 +35,12 @@ Thumbs.db
 .idea/
 *.swp
 *~
+
+# Local backups and editor leftovers
+*.save
+*.bak
+*.backup
+.git.backup/
+
+# Embedded repo (RAG chatbot runs separately)
+rag-service/
