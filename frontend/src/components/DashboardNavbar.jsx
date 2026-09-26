@@ -107,6 +107,7 @@ const DashboardNavbar = ({ activePage }) => {
           </nav>
 
           <div className="flex items-center gap-2">
+            {/* Language switcher */}
             <button
               onClick={toggleLanguage}
               aria-label="Switch language"
@@ -117,14 +118,7 @@ const DashboardNavbar = ({ activePage }) => {
               {i18n.language === 'si' ? 'EN' : 'සිං'}
             </button>
 
-            <Link
-              to="/emergency"
-              className="bg-error-container text-on-error-container px-4 py-2 rounded-full font-label-md text-label-md flex items-center gap-2 hover:bg-error hover:text-on-error transition-all duration-200"
-            >
-              <span className="material-symbols-outlined text-[18px]">emergency</span>
-              {t('nav.emergency')}
-            </Link>
-
+            {/* Logout */}
             <button
               onClick={handleLogout}
               aria-label={t('nav.logout')}
@@ -138,6 +132,7 @@ const DashboardNavbar = ({ activePage }) => {
         </div>
       </header>
 
+      {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-1 pb-4 pt-2 bg-surface shadow-[0_-4px_20px_rgba(118,182,227,0.05)] rounded-t-lg">
         {navItems.slice(0, 5).map((item) => {
           const active = isActive(item.page);

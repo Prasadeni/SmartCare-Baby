@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema(
     country: { type: String, default: 'Sri Lanka' },
     avatarUrl: { type: String, default: null },
     isActive: { type: Boolean, default: true },
+
+    // Password reset
+    resetToken: { type: String, default: null, index: true },
+    resetTokenExpiresAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

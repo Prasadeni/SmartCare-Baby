@@ -9,7 +9,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgetPassword from './pages/ForgetPassword';
-
+import ResetPassword from './pages/ResetPassword';
 // Caregiver + Mother
 import UserDashboard from './pages/UserDashboard';
 import Profile from './pages/Profile';
@@ -71,7 +71,9 @@ export default function App() {
         {/* ── PUBLIC ──────────────────────────────────────── */}
         <Route path="/" element={<Home />} />
         <Route path="/forgot-password" element={<ForgetPassword />} />
-
+        <Route path="/" element={<Home />} />
+        <Route path="/forgot-password" element={<ForgetPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route element={<PublicOnlyRoute />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

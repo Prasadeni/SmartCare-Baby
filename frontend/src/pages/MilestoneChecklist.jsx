@@ -6,6 +6,7 @@ import FloatingButtons from '../components/FloatingButtons';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorState from '../components/ErrorState';
 import { milestonesApi } from '../api/assessments';
+import { babiesApi } from '../api/babies';
 import { MILESTONE_AREAS } from '../utils/constants';
 
 const AREA_ICONS = {
@@ -18,6 +19,19 @@ const AREA_ICONS = {
   'Hearing/Vision': 'visibility',
 };
 
+// Show milestones within this many months of the baby's current age
+const LOOKAHEAD_MONTHS = 3;
+
+function ageInMonths(dob) {
+  if (!dob) return 0;
+  const birth = new Date(dob);
+  const now = new Date();
+  let months = (now.getFullYear() - birth.getFullYear()) * 12;
+  months += now.getMonth() - birth.getMonth();
+  if (now.getDate() < birth.getDate()) months -= 1;
+  return Math.max(0, months);
+}
+
 export default function MilestoneChecklist() {
   const [searchParams] = useSearchParams();
   const babyId = searchParams.get('babyId');
@@ -25,7 +39,8 @@ export default function MilestoneChecklist() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [configs, setConfigs] = useState([]);
+  const [baby, setBaby] = useState(null);
+  const [allConfigs, setAllConfigs] = useState([]);
   const [activeArea, setActiveArea] = useState('Gross Motor');
   const [status, setStatus] = useState({}); // configId -> 'achieved' | 'notYet' | 'unsure'
   const [submitting, setSubmitting] = useState(false);
@@ -35,8 +50,12 @@ export default function MilestoneChecklist() {
     setLoading(true);
     setError(null);
     try {
-      const list = await milestonesApi.getConfigs();
-      setConfigs(list || []);
+      const [list, babyData] = await Promise.all([
+        milestonesApi.getConfigs(),
+        babyId ? babiesApi.get(babyId).catch(() => null) : Promise.resolve(null),
+      ]);
+      setAllConfigs(list || []);
+      setBaby(babyData);
     } catch (err) {
       setError(err.message || 'Could not load milestones');
     } finally {
@@ -44,7 +63,31 @@ export default function MilestoneChecklist() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [babyId]);
+
+  const babyAgeMonths = useMemo(() => ageInMonths(baby?.dob), [baby?.dob]);
+
+  // Only show milestones that are due now or within LOOKAHEAD_MONTHS
+  const configs = useMemo(() => {
+    if (!baby) return allConfigs; // no baby context, show all
+    const cutoff = babyAgeMonths + LOOKAHEAD_MONTHS;
+    return allConfigs.filter((c) => (c.expectedAgeMonths ?? 0) <= cutoff);
+  }, [allConfigs, baby, babyAgeMonths]);
+
+  const hiddenCount = allConfigs.length - configs.length;
+
+  // Areas that have at least one visible item — used for tabs
+  const visibleAreas = useMemo(() => {
+    const present = new Set(configs.map((c) => c.area));
+    return MILESTONE_AREAS.filter((a) => present.has(a));
+  }, [configs]);
+
+  // If the current tab has no visible items, snap to the first visible area
+  useEffect(() => {
+    if (visibleAreas.length > 0 && !visibleAreas.includes(activeArea)) {
+      setActiveArea(visibleAreas[0]);
+    }
+  }, [visibleAreas, activeArea]);
 
   const itemsForArea = useMemo(
     () => configs.filter((c) => c.area === activeArea),
@@ -54,7 +97,9 @@ export default function MilestoneChecklist() {
   const setItemStatus = (id, s) => setStatus((prev) => ({ ...prev, [id]: s }));
 
   const totals = useMemo(() => {
-    const answered = Object.keys(status).length;
+    const answered = Object.keys(status).filter((id) =>
+      configs.some((c) => c.id === id)
+    ).length;
     return { answered, total: configs.length };
   }, [status, configs]);
 
@@ -65,11 +110,13 @@ export default function MilestoneChecklist() {
     }
     setSubmitting(true);
     try {
+      // Only submit items that are visible for this baby's age
       const items = configs.map((c) => ({
         configId: c.id,
-        achieved: status[c.id] === 'achieved' ? true
-                : status[c.id] === 'notYet' ? false
-                : null,
+        achieved:
+          status[c.id] === 'achieved' ? true
+          : status[c.id] === 'notYet' ? false
+          : null,
       }));
       const assessment = await milestonesApi.submit(babyId, items);
       setResult(assessment);
@@ -95,13 +142,40 @@ export default function MilestoneChecklist() {
                   Developmental Milestones
                 </h2>
                 <p className="text-body-lg text-on-surface-variant max-w-2xl">
-                  Evaluate progress across 7 areas. Items not yet achieved will be flagged for review.
+                  {baby
+                    ? `Age-appropriate milestones for ${baby.name} (${babyAgeMonths} month${babyAgeMonths === 1 ? '' : 's'} old).`
+                    : 'Evaluate progress across 7 areas. Items not yet achieved will be flagged for review.'}
                 </p>
               </div>
               <span className="text-label-md font-label-md text-primary bg-primary-fixed px-3 py-1 rounded-full uppercase">
                 {totals.answered} / {totals.total} answered
               </span>
             </div>
+
+            {/* Age-info note */}
+            {baby && (
+              <div className="bg-surface-container-low rounded-2xl p-4 mb-4 flex items-start gap-3">
+                <span className="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5">
+                  info
+                </span>
+                <div>
+                  <p className="text-body-sm font-semibold text-on-surface">
+                    Age-appropriate checklist
+                  </p>
+                  <p className="text-body-sm text-on-surface-variant">
+                    Showing milestones expected by age {babyAgeMonths + LOOKAHEAD_MONTHS} months or earlier.
+                    {hiddenCount > 0 && (
+                      <>
+                        {' '}
+                        <strong>{hiddenCount}</strong> milestone{hiddenCount === 1 ? '' : 's'} expected later
+                        {hiddenCount === 1 ? ' is' : ' are'} hidden until closer to that age — this keeps
+                        the assessment clinically meaningful.
+                      </>
+                    )}
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="bg-surface-container-lowest rounded-2xl p-5 soft-shadow">
               <div className="flex justify-between items-center mb-2">
@@ -125,13 +199,22 @@ export default function MilestoneChecklist() {
             <ErrorState message={error} onRetry={load} />
           ) : result ? (
             <ResultView result={result} babyId={babyId} />
+          ) : configs.length === 0 ? (
+            <div className="bg-surface-container-lowest rounded-2xl p-8 soft-shadow text-center">
+              <span className="material-symbols-outlined text-4xl text-tertiary mb-3">
+                child_care
+              </span>
+              <p className="text-body-md text-on-surface-variant">
+                No milestones are due yet for a baby this age. Check back as {baby?.name || 'your baby'} grows.
+              </p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
               {/* Tabs */}
               <div className="md:col-span-12">
                 <div className="flex gap-2 border-b border-surface-variant pb-2 overflow-x-auto">
-                  {MILESTONE_AREAS.map((area) => (
+                  {visibleAreas.map((area) => (
                     <button
                       key={area}
                       onClick={() => setActiveArea(area)}
@@ -224,7 +307,7 @@ export default function MilestoneChecklist() {
                   <h3 className="text-headline-md font-headline-md text-on-surface mb-3">
                     Summary
                   </h3>
-                  {MILESTONE_AREAS.map((area) => {
+                  {visibleAreas.map((area) => {
                     const areaItems = configs.filter((c) => c.area === area);
                     const answered = areaItems.filter((i) => status[i.id]).length;
                     return (

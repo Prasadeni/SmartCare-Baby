@@ -227,12 +227,30 @@ router.get('/milestones/:id', requireAuth, asyncHandler(async (req, res) => {
    ══════════════════════════════════════════════════════════════ */
 
 // POST /api/assessments/mchat
+
 router.post('/mchat', requireAuth, asyncHandler(async (req, res) => {
   const { babyId, answers = [] } = req.body;
   if (!babyId) return res.status(400).json({ message: 'babyId is required' });
-  await assertOwnsBaby(req.user._id, babyId, req.user.role);
+  const baby = await assertOwnsBaby(req.user._id, babyId, req.user.role);
 
-  // Fetch questions from DB to use their real reverse-scoring flags
+  // ── Age gate: M-CHAT-R is validated for children 16+ months ──
+  const dob = new Date(baby.dob);
+  const now = new Date();
+  let ageMonths =
+    (now.getFullYear() - dob.getFullYear()) * 12 +
+    (now.getMonth() - dob.getMonth());
+  if (now.getDate() < dob.getDate()) ageMonths -= 1;
+  ageMonths = Math.max(0, ageMonths);
+
+  if (ageMonths < 16) {
+    return res.status(400).json({
+      message: `M-CHAT-R is validated for children 16 months and older. ${baby.name} is ${ageMonths} month${ageMonths === 1 ? '' : 's'} old.`,
+      code: 'AGE_RESTRICTED',
+      minAgeMonths: 16,
+      currentAgeMonths: ageMonths,
+    });
+  }
+
   const questions = await MchatQuestion.find({ isActive: true }).sort({ number: 1 });
   const byNumber = new Map(questions.map((q) => [q.number, q]));
 

@@ -1,13 +1,17 @@
 // backend/routes/auth.js
 import express from 'express';
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import Baby from '../models/Baby.js';
 import PregnancyTracker from '../models/PregnancyTracker.js';
 import { signToken, toPublicUser, asyncHandler } from '../utils/helpers.js';
 import { requireAuth } from '../middleware/auth.js';
+import { sendPasswordResetEmail } from '../utils/email.js';
 
 const router = express.Router();
+
+const RESET_TOKEN_TTL_MS = 15 * 60 * 1000; // 15 minutes
 
 async function userFlags(user) {
   const [babyCount, pregnancy] = await Promise.all([
@@ -74,6 +78,12 @@ router.post(
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    if (user.isActive === false) {
+      return res.status(403).json({
+        message: 'Your account has been deactivated. Please contact support.',
+      });
+    }
+
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) {
       return res.status(401).json({ message: 'Invalid email or password' });
@@ -104,7 +114,90 @@ router.post('/logout', requireAuth, (req, res) => {
 router.post(
   '/forgot-password',
   asyncHandler(async (req, res) => {
-    res.json({ success: true });
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: 'Email is required' });
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    // Always return success so we don't leak which emails are registered
+    if (!user) {
+      return res.json({
+        success: true,
+        message: 'If that email is registered, a reset link has been sent.',
+      });
+    }
+
+    // Generate a cryptographically secure random token
+    const token = crypto.randomBytes(32).toString('hex');
+    user.resetToken = token;
+    user.resetTokenExpiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MS);
+    await user.save();
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
+
+    try {
+      await sendPasswordResetEmail({
+        to: user.email,
+        fullName: user.fullName,
+        resetUrl,
+      });
+      console.log(`✉️  Password reset email sent to ${user.email}`);
+    } catch (err) {
+      console.error('❌ Failed to send reset email:', err.message);
+      // Clear the token so a failed send doesn't leave a stale one
+      user.resetToken = null;
+      user.resetTokenExpiresAt = null;
+      await user.save();
+      return res
+        .status(500)
+        .json({ message: 'Could not send reset email. Please try again later.' });
+    }
+
+    res.json({
+      success: true,
+      message: 'If that email is registered, a reset link has been sent.',
+    });
+  })
+);
+
+// POST /api/auth/reset-password
+router.post(
+  '/reset-password',
+  asyncHandler(async (req, res) => {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: 'Token and new password are required' });
+    }
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({ message: 'Password must be at least 8 characters' });
+    }
+
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiresAt: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: 'This reset link is invalid or has expired.' });
+    }
+
+    user.passwordHash = await bcrypt.hash(newPassword, 10);
+    user.resetToken = null;
+    user.resetTokenExpiresAt = null;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password has been reset. You can now sign in.',
+    });
   })
 );
 

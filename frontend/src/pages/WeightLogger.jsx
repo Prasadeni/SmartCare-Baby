@@ -207,7 +207,7 @@ export default function WeightLogger() {
   return (
     <>
       <div className="min-h-screen bg-background text-on-background font-body-md pb-32 md:pb-0">
-        <DashboardNavbar activePage="babies" />
+        <DashboardNavbar activePage="pregnancy" />
 
         <main className="max-w-[1200px] mx-auto px-4 md:px-6 py-6 md:py-10">
           {loading ? (

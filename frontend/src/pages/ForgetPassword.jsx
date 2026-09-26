@@ -21,8 +21,13 @@ export default function ForgetPassword() {
     setStatus(null);
     setSubmitting(true);
     try {
-      await authApi.forgotPassword(email);
-      setStatus({ type: 'success', message: 'Reset link sent. Check your email inbox.' });
+        const res = await authApi.forgotPassword(email);
+        setStatus({
+        type: 'success',
+        message:
+          res?.message ||
+          'If that email is registered, a reset link has been sent. Check your inbox and spam folder.',
+      });
     } catch (err) {
       setStatus({ type: 'error', message: err.message || 'Could not send reset link.' });
     } finally {
