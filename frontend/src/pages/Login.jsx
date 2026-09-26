@@ -1,6 +1,7 @@
 // src/pages/Login.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import mother2Image from '../assets/mother2.jpg';
 
 import Input from '../components/Input';
@@ -23,6 +24,11 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === 'si' ? 'en' : 'si');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,7 +55,6 @@ export default function Login() {
       <style>{styles}</style>
       <div className="flex h-screen w-full overflow-hidden bg-background font-body-md text-on-background antialiased">
 
-        {/* LEFT */}
         <div className="hidden lg:block relative w-1/2 h-full p-2">
           <div className="relative w-full h-full rounded-[40px] overflow-hidden shadow-2xl animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <img src={mother2Image} alt="Mother holding newborn baby" className="absolute inset-0 h-full w-full object-cover" />
@@ -63,23 +68,34 @@ export default function Login() {
                 Nurturing every step<br /> of the journey
               </h1>
               <p className="text-white/80 text-lg max-w-md font-body-md animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-                Sign in to pick up your pregnancy and baby-care tracking right where you left off.
+                {t('login.subtitle')}
               </p>
             </div>
           </div>
         </div>
 
-        {/* RIGHT */}
         <div className="w-full lg:w-1/2 h-full flex items-center justify-center p-6 md:p-12">
-          <div className="w-full max-w-[520px] bg-surface-container-lowest rounded-lg p-8 md:p-10 soft-shadow animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <div className="w-full max-w-[520px] bg-surface-container-lowest rounded-lg p-8 md:p-10 soft-shadow animate-fade-in-up relative" style={{ animationDelay: '0.2s' }}>
+
+            {/* Language toggle */}
+            <button
+              onClick={toggleLanguage}
+              aria-label="Switch language"
+              title="Switch language"
+              className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-all duration-200 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-low font-label-md text-label-md"
+            >
+              <span className="material-symbols-outlined text-[16px]">language</span>
+              {i18n.language === 'si' ? 'EN' : 'සිං'}
+            </button>
+
             <div className="mb-8 text-center">
               <div className="flex justify-center mb-6">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-container text-on-primary-container shadow-lg">
                   <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>child_care</span>
                 </div>
               </div>
-              <h2 className="font-headline text-5xl font-bold text-primary mb-2">Welcome back</h2>
-              <p className="font-body-md text-body-md text-on-surface-variant">Sign in to continue your care journey.</p>
+              <h2 className="font-headline text-5xl font-bold text-primary mb-2">{t('login.welcomeBack')}</h2>
+              <p className="font-body-md text-body-md text-on-surface-variant">{t('login.subtitle')}</p>
             </div>
 
             <form className="space-y-5" onSubmit={handleSubmit}>
@@ -91,7 +107,7 @@ export default function Login() {
               )}
 
               <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-                <Input id="email" name="email" placeholder="Email Address" required type="email" autoComplete="email" />
+                <Input id="email" name="email" placeholder={t('login.emailPlaceholder')} required type="email" autoComplete="email" />
               </div>
 
               <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
@@ -99,7 +115,7 @@ export default function Login() {
                   <Input
                     id="password"
                     name="password"
-                    placeholder="Password"
+                    placeholder={t('login.passwordPlaceholder')}
                     required
                     type={showPassword ? 'text' : 'password'}
                     className="pr-12"
@@ -121,20 +137,20 @@ export default function Login() {
                     <input className="peer appearance-none w-5 h-5 border-2 border-outline rounded bg-background checked:bg-primary checked:border-primary transition-colors cursor-pointer focus:ring-2 focus:ring-primary-container focus:ring-offset-2" type="checkbox" />
                     <span className="material-symbols-outlined absolute text-on-primary text-[16px] pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
                   </div>
-                  <span className="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Remember me</span>
+                  <span className="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">{t('login.rememberMe')}</span>
                 </label>
-                <Link to="/forgot-password" className="font-label-md text-label-md text-primary hover:text-on-primary-container transition-colors">Forgot Password?</Link>
+                <Link to="/forgot-password" className="font-label-md text-label-md text-primary hover:text-on-primary-container transition-colors">{t('login.forgotPassword')}</Link>
               </div>
 
               <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
                 <Button type="submit" disabled={submitting}>
-                  {submitting ? 'Signing in…' : 'Sign in'}
+                  {submitting ? t('login.signingIn') : t('login.signIn')}
                 </Button>
               </div>
 
               <div className="text-center pt-4 animate-fade-in-up" style={{ animationDelay: '0.65s' }}>
                 <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  New to SmartCare Baby? <Link to="/register" className="text-primary hover:underline font-semibold">Continue with registration</Link>
+                  {t('login.newTo')} <Link to="/register" className="text-primary hover:underline font-semibold">{t('login.continueRegistration')}</Link>
                 </p>
               </div>
             </form>
