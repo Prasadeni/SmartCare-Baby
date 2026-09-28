@@ -49,8 +49,6 @@ const styles = `
 `;
 
 // ─────────────────────────────────────────────────────────────
-// Animated Counter
-// ─────────────────────────────────────────────────────────────
 function AnimatedCounter({ end, duration = 1800, suffix = '' }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
@@ -215,7 +213,6 @@ function Home() {
                   <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
                   <span>Backed by <strong className="text-on-surface">WHO</strong> & <strong className="text-on-surface">AAP</strong> guidelines</span>
                 </div>
-                
               </div>
 
               <div className="relative flex justify-center items-center animate-slide-up stagger-3">
@@ -360,52 +357,8 @@ function Home() {
             </div>
           </section>
 
-          {/* ───── TESTIMONIALS ───── */}
-          <section className="bg-surface-container-low py-14 md:py-20 relative overflow-hidden">
-            <div className="absolute top-10 left-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-blob"></div>
-
-            <div className="max-w-6xl mx-auto px-4 md:px-6 relative">
-              <div className="text-center max-w-3xl mx-auto flex flex-col gap-2 mb-12" data-aos="fade-up">
-                <h3 className="text-3xl md:text-4xl font-headline font-bold text-primary">What Parents Say </h3>
-                <p className="text-lg font-body text-on-surface-variant">Real stories from moms and dads on their journey.</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  { name: 'Sarah M.', role: 'Mom of 1', initial: 'S', color: 'bg-secondary-container text-on-secondary-container',
-                    quote: "This website has been such a great help during my pregnancy. The information is easy to understand and so reassuring!" },
-                  { name: 'Nimalika P.', role: 'Mom of 1', initial: 'N', color: 'bg-primary-container text-on-primary-container',
-                    quote: "I love the symptom checker and baby development section. It answers all my questions as a first-time mom!" },
-                  { name: 'Kasun D.', role: 'Dad of 1', initial: 'K', color: 'bg-tertiary-fixed text-on-tertiary-fixed',
-                    quote: "Simple, clean and very user-friendly. I always come here for trusted advice and guidance." },
-                ].map((t, i) => (
-                  <div
-                    key={t.name}
-                    className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_rgba(118,182,227,0.08)] card-3d"
-                    data-aos="fade-up"
-                    data-aos-delay={120 * (i + 1)}
-                  >
-                    <div className="flex gap-0.5 text-secondary mb-3">
-                      {[...Array(5)].map((_, j) => (
-                        <span key={j} className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                      ))}
-                    </div>
-                    <p className="text-body-md text-on-surface-variant leading-relaxed italic mb-5">"{t.quote}"</p>
-                    <div className="flex items-center gap-3 pt-3 border-t border-outline-variant/20">
-                      <div className={`w-10 h-10 rounded-full ${t.color} flex items-center justify-center font-bold text-sm`}>{t.initial}</div>
-                      <div>
-                        <p className="font-headline-sm text-body-md font-bold text-on-surface">{t.name}</p>
-                        <p className="text-body-sm text-on-surface-variant">{t.role}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
           {/* ───── GROWTH STAGES ───── */}
-          <section className="py-14 md:py-20 relative">
+          <section className="bg-surface-container-lowest py-14 md:py-20 relative">
             <div className="max-w-6xl mx-auto px-4 md:px-6">
               <div className="text-center max-w-3xl mx-auto flex flex-col gap-2 mb-12" data-aos="fade-up">
                 <h3 className="text-3xl md:text-4xl font-headline font-bold text-primary">Watch Your Little One Grow 💗</h3>
@@ -541,14 +494,13 @@ function Home() {
         </main>
 
         {/* ═══════════════════════════════════════════════════════ */}
-        {/* FOOTER (Simplified) */}
+        {/* FOOTER */}
         {/* ═══════════════════════════════════════════════════════ */}
         <footer className="w-full bg-surface border-t border-surface-container pt-14 pb-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
 
           <div className="max-w-6xl mx-auto px-4 md:px-6 relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
-              {/* Brand */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>child_care</span>
@@ -559,7 +511,6 @@ function Home() {
                 </p>
               </div>
 
-              {/* Quick Links */}
               <div className="flex flex-col gap-3">
                 <h4 className="text-label-md font-label-md text-tertiary uppercase tracking-wider mb-1">Quick Links</h4>
                 <Link to="/" className="text-body-sm font-body text-on-surface-variant hover:text-primary transition-colors">Home</Link>
@@ -569,7 +520,6 @@ function Home() {
                 <Link to="/register" className="text-body-sm font-body text-on-surface-variant hover:text-primary transition-colors">Get Started</Link>
               </div>
 
-              {/* Contact */}
               <div className="flex flex-col gap-3">
                 <h4 className="text-label-md font-label-md text-tertiary uppercase tracking-wider mb-1">Contact</h4>
                 <div className="flex items-start gap-3 text-body-sm font-body text-on-surface-variant">
@@ -601,7 +551,7 @@ function Home() {
         </footer>
 
         {/* ═══════════════════════════════════════════════════════ */}
-        {/* FLOATING BUTTONS (Correctly Linked) */}
+        {/* FLOATING BUTTONS */}
         {/* ═══════════════════════════════════════════════════════ */}
         <Link
           to="/login"
